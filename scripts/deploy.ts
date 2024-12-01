@@ -11,6 +11,7 @@ import {
 
 import qs from "qs";
 import qrcode from "qrcode-terminal";
+import { getInitInfo } from "./common";
 
 
 async function deployScript() {
@@ -19,26 +20,19 @@ async function deployScript() {
     );
     console.log("Deploy script is running, let's deploy our main.fc contract...");
 
-    const codeCell = Cell.fromBoc(Buffer.from(hex, "hex"))[0];
-    const initialAddress = Address.parse('0QBzVFvOkvPS0_BDwLQNa6V20PPoPfMPKzIiB1RppBKQxEMU')
-    const dataCell = beginCell().storeAddress(initialAddress).endCell();
+    const { address, code, data } = getInitInfo();
 
     const stateInit: StateInit = {
-        code: codeCell,
-        data: dataCell,
+        code: code,
+        data: data,
     };
 
     const stateInitBuilder = beginCell();
     storeStateInit(stateInit)(stateInitBuilder);
     const stateInitCell = stateInitBuilder.endCell();
 
-    const address = contractAddress(0, {
-        code: codeCell,
-        data: dataCell,
-    });
-
     console.log(
-        `The address of the contract is following: ${address.toString()}`
+        `The address of the contract is following: ${address.toString({ testOnly: true })}`
     );
     console.log(`Please scan the QR code below to deploy the contract:`);
 
@@ -50,7 +44,7 @@ async function deployScript() {
         "?" +
         qs.stringify({
             text: "Deploy contract",
-            amount: toNano(0.05).toString(10),
+            amount: toNano(0.005).toString(10),
             init: stateInitCell.toBoc({ idx: false }).toString("base64"),
         });
 
