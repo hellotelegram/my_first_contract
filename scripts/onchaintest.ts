@@ -7,7 +7,7 @@ import qrcode from "qrcode-terminal";
 async function onchainTestScript() {
     const { address } = getInitInfo();
     const endpoint = await getHttpV4Endpoint({
-        network: "testnet",
+        network: process.env.TESTNET ? "testnet" : "mainnet",
     });
     const client4 = new TonClient4({ endpoint });
 
@@ -22,7 +22,7 @@ async function onchainTestScript() {
     let link =
         `https://tonhub.com/transfer/` +
         address.toString({
-            testOnly: true,
+            testOnly: process.env.TESTNET ? true : false,
         }) +
         "?" +
         qs.stringify({
